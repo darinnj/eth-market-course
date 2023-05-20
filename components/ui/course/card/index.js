@@ -8,7 +8,8 @@ function Card({course, disable, Footer}) {
             <div className="flex h-full">
                 <div className="flex-1 h-full next-image-wrapper">
                     <Image 
-                    className={`object-cover ${disable && "filter grayscale"}`}
+                    className={`object-cover ${disable ? JSON.parse(disable) && "filter grayscale" : ""}`}
+                              
                     src={course.coverImage} 
                     layout="responsive"
                     alt={course.title}
