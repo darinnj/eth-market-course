@@ -17,6 +17,7 @@ function EthRates() {
                 height="35"
                 width="35"
                 src="/small-eth.webp"
+                alt="Title Here"
               />
               <span className="text-xl font-bold">
                 = {eth.data}$
@@ -41,6 +42,7 @@ function EthRates() {
                 height="35"
                 width="35"
                 src="/small-eth.webp"
+                alt="Title here"
               />
               <span className="text-xl font-bold">
                 = {COURSE_PRICE}$

@@ -6,25 +6,36 @@ export const handler = (web3, provider) => () => {
         '0x0222cffd0b577cadf3f77883f5733dba8a9aa52258e335bda4ed9be716527cb7': true
     }
 
-    const { data, mutate, ...swrResponse } = useSWR(() => 
+    const { data, mutate, ...swrRes } = useSWR(() => 
         web3 ? 'web/accounts' : null ,
         async () => {
             const accounts = await web3.eth.getAccounts()
-            return accounts[0]
+            const account = accounts[0]
+
+            if (!account) {
+                throw new Error('Cannot retrieve account. Please refresh the browser.')
+            }
+
+            return account
         }
     )
 
     useEffect(() => {
-        provider &&
-        provider.on('accountsChanged', 
-            account => mutate(account[0] ?? null)
-        )
+        
+        const mutator = accounts => mutate(accounts[0] ?? null)
+        provider?.on('accountsChanged', mutator)
+
+        console.log(provider)
+
+        return () => {
+            provider?.removeListener('accountChanged', mutator)
+        }
     }, [provider])
 
 return {
         data,
         isAdmin: (data && adminAddresses[web3.utils.keccak256(data)]) ?? false,
         mutate, 
-        ...swrResponse 
+        ...swrRes 
     }
 }
