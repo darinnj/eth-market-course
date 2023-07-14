@@ -3,7 +3,7 @@ import useSWR from "swr"
 
 export const handler = (web3, provider) => () => {
     const adminAddresses = {
-        '0x0222cffd0b577cadf3f77883f5733dba8a9aa52258e335bda4ed9be716527cb7': true
+        '0x788b7fc766d18f6f7e3620f7896be87ac9f9f3fb4776a61e66138f7eae3d8622': true
     }
 
     const { data, mutate, ...swrRes } = useSWR(() => 
@@ -25,7 +25,7 @@ export const handler = (web3, provider) => () => {
         const mutator = accounts => mutate(accounts[0] ?? null)
         provider?.on('accountsChanged', mutator)
 
-        console.log(provider)
+        // console.log(provider)
 
         return () => {
             provider?.removeListener('accountChanged', mutator)
