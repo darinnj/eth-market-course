@@ -40,6 +40,9 @@ contract CourseMarketplace {
     /// Course has already Owner!
     error CourseHasOwner();
 
+    /// Sender is not course owner!
+    error SenderIsNotCourseOwner();
+
     /// Only the owner has access!
     error OnlyOwner();
 
@@ -72,6 +75,28 @@ contract CourseMarketplace {
             state: State.Purchased,
             owner: msg.sender
         });
+    }
+
+    function repurchaseCourse(bytes32 courseHash) 
+        external
+        payable
+    {
+         if (!isCourseCreated(courseHash)) {
+            revert CourseIsNotCreated();
+        }
+
+        if (!hasCourseOwnership((courseHash))) {
+            revert SenderIsNotCourseOwner();
+        }
+
+        Course storage course = ownedCourses[courseHash];
+
+        if (course.state != State.Deactivated) {
+            revert InvalidState();
+        }
+
+        course.state = State.Purchased;
+        course.price = msg.value;
     }
 
     function activateCourse(
