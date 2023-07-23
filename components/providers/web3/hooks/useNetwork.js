@@ -1,44 +1,37 @@
 import { useEffect } from "react"
-import useSWR, { mutate } from "swr"
+import useSWR from "swr"
 
 const NETWORKS = {
-    1: 'ETHEREUM Network',
-    1337: 'Ganache'
+  1: "Ethereum Main Network",
+  3: "Ropsten Test Network",
+  4: "Rinkeby Test Network",
+  5: "Goerli Test Network",
+  42: "Kovan Test Network",
+  56: "Binance Smart Chain",
+  1337: "Ganache",
 }
 
 const targetNetwork = NETWORKS[process.env.NEXT_PUBLIC_TARGET_CHAIN_ID]
 
-export const handler = (web3, provider) => () => {
-    
-    const { data, mutate, ...rest } = useSWR(() =>
-        web3 ? 'web3/network' : null,
-        async () => {
-            const chainId = await web3.eth.getChainId()
+export const handler = (web3) => () => {
 
-            if (!chainId) {
-                throw new Error('Cannot retrieve network. Please refresh the browser.')
-            }
-            
-            return NETWORKS[chainId]
-        }
-    )
+  const { data, ...rest } = useSWR(() =>
+    web3 ? "web3/network" : null,
+    async () => {
+      const chainId = await web3.eth.getChainId()
 
-    useEffect(() => {
-        
-        const mutator = chainId => mutate(NETWORKS[parseInt(chainId, 16)]) 
-        provider?.on('chainChanged', mutator)
+      if (!chainId) {
+        throw new Error("Cannot retreive network. Please refresh the browser.")
+      }
 
-        return () => {
-            provider?.removeListener('chainChanged', mutator)
-        }
-    }, [provider])
-
-    return {
-        data,
-        mutate,
-        target: targetNetwork,
-        isSupported: data === targetNetwork,
-        ...rest
-    
+      return NETWORKS[chainId]
     }
+  )
+
+  return {
+    data,
+    target: targetNetwork,
+    isSupported: data === targetNetwork,
+    ...rest
+  }
 }

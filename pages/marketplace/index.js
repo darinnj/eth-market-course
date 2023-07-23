@@ -3,17 +3,20 @@
 import { CourseCard, CourseList } from "@components/ui/course"
 import { BaseLayout } from "@components/ui/layout"
 import { getAllCourses } from "@content/courses/fetcher"
-import { useWalletInfo } from "@components/hooks/web3"
-import { Button } from "@components/ui/common"
+import { useOwnedCourses, useWalletInfo } from "@components/hooks/web3"
+import { Button, Loader, Message } from "@components/ui/common"
 import { OrderModal } from "@components/ui/order"
 import { useState } from "react"
 import { MarketHeader } from "@components/ui/marketplace"
 import { useWeb3 } from "@components/providers"
 
 export default function Marketplace({courses}) {
-  const { web3, contract } = useWeb3()
-  const { canPurchaseCourse, account } = useWalletInfo()
+  const { web3, contract, requireInstall } = useWeb3()
+  const { hasConnectedWallet, isConnecting, account } = useWalletInfo()
+  const { ownedCourses } = useOwnedCourses(courses, account.data)
+
   const [selectedCourse, setSelectedCourse] = useState(null)
+  const [isNewPurchase, setIsNewPurchase] = useState(true)
 
   const purchaseCourse = async order => {
     const hexCourseId = web3.utils.utf8ToHex(selectedCourse.id)
@@ -46,29 +49,97 @@ export default function Marketplace({courses}) {
       <CourseList
         courses={courses}
       >
-      {course =>
-        <CourseCard
-          key={course.id}
-          course={course}
-          disable={(!canPurchaseCourse).toString()}
-          Footer={() =>
-            <div className="mt-4">
-              <Button
-                onClick={() => setSelectedCourse(course)}
-                disable={(!canPurchaseCourse).toString()}
-                variant="lightPurple">
-                Purchase
-              </Button>
-            </div>
-          }
-        />
+      {course => {
+        const owned = ownedCourses.lookup[course.id]
+        return (
+          <CourseCard
+            key={course.id}
+            course={course}
+            state={owned?.state}
+            disabled={!hasConnectedWallet}
+            Footer={() => {
+              if (requireInstall) {
+                return (
+                  <Button
+                    size="sm"
+                    disabled={true}
+                    variant="lightPurple">
+                    Install
+                  </Button>
+                )
+              }
+
+              if (isConnecting) {
+                return (
+                  <Button
+                    size="sm"
+                    disabled={true}
+                    variant="lightPurple">
+                    <Loader size="sm" />
+                  </Button>
+                )
+              }
+
+              if (!ownedCourses.hasInitialResponse) {
+                return (
+                  <div style={{height: "42px"}}></div>
+                )
+              }
+
+              if (owned) {
+                return (
+                  <>
+                    <div className="flex">
+                      <Button
+                        onClick={() => alert("You are owner of this course.")}
+                        disabled={false}
+                        size="sm"
+                        variant="white">
+                        Yours &#10004;
+                      </Button>
+                      { owned.state === "deactivated" &&
+                        <div className="ml-1">
+                          <Button
+                            size="sm"
+                            disabled={false}
+                            onClick={() => {
+                              setIsNewPurchase(false)
+                              setSelectedCourse(course)
+                            }}
+                            variant="purple">
+                            Fund to Activate
+                          </Button>
+                        </div>
+                      }
+                    </div>
+                  </>
+                )
+              }
+
+
+              return (
+                <Button
+                  onClick={() => setSelectedCourse(course)}
+                  size="sm"
+                  disabled={!hasConnectedWallet}
+                  variant="lightPurple">
+                  Purchase
+                </Button>
+              )}
+            }
+          />
+        )}
       }
       </CourseList>
       { selectedCourse &&
         <OrderModal
           course={selectedCourse}
+          isNewPurchase={isNewPurchase}
           onSubmit={purchaseCourse}
-          onClose={() => setSelectedCourse(null)}
+          onClose={() => {
+            setSelectedCourse(null)
+            setIsNewPurchase(true)
+          }}
         />
       }
     </>
