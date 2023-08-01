@@ -3,7 +3,7 @@ import useSWR from "swr"
 
 export const handler = (web3, provider) => () => {
     const adminAddresses = {
-        '0x788b7fc766d18f6f7e3620f7896be87ac9f9f3fb4776a61e66138f7eae3d8622': true
+        '0x788b7fc766d18f6f7e3620f7896be87ac9f9f3fb4776a61e66138f7eae3d8622': true,
     }
 
     const { data, mutate, ...swrRes } = useSWR(() => 
