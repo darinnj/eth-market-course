@@ -1,3 +1,5 @@
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '@styles/globals.css'
 
 
@@ -9,6 +11,7 @@ function App({ Component, pageProps }) {
 
 	return (
 		<Layout>
+			<ToastContainer />
 			<Component {...pageProps} />
 		</Layout>
 	)

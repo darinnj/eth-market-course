@@ -1,3 +1,5 @@
+
+
 import { useEthPrice } from "@components/hooks/useEthPrice";
 import { Modal, Button } from "@components/ui/common";
 import { useEffect, useState } from "react";
@@ -173,7 +175,7 @@ export default function OrderModal({course, onClose, onSubmit, isNewPurchase}) {
           <Button
             disabled={formState.isDisabled}
             onClick={() => {
-              onSubmit(order)
+              onSubmit(order, course)
           }}>
             Submit
           </Button>
