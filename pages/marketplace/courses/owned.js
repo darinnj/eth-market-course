@@ -23,7 +23,7 @@ export default function OwnedCourses({ courses }) {
 				{ ownedCourses.isEmpty &&
 					<div className="w-1/2">
 						<Message type="warning">
-							<div>You don't have any courses</div>
+							<div>You don&apos;t have any courses</div>
 							<Link href='/marketplace' legacyBehavior>
 								<a><i>Purchase Course</i></a>
 							</Link>
